@@ -89,10 +89,13 @@ func TestDashboardResourceReturnsHardenedHTML(t *testing.T) {
 		t.Fatalf("dashboard CSP = %q", dashboard.Headers.Get("Content-Security-Policy"))
 	}
 	body := string(dashboard.Body)
-	for _, expected := range []string{"Codex 用量观测台", usagePath, "Authorization"} {
+	for _, expected := range []string{"Codex Workspace 用量", usagePath, "Authorization", "cli-proxy-auth", "readPanelAuth", "cli-proxy-theme"} {
 		if !strings.Contains(body, expected) {
 			t.Fatalf("dashboard HTML missing %q", expected)
 		}
+	}
+	if strings.Contains(body, "连接并读取账号") {
+		t.Fatal("dashboard must reuse the Management Center session instead of prompting on its primary path")
 	}
 }
 

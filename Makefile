@@ -1,5 +1,5 @@
 PLUGIN_ID ?= codex-workspace-usage
-VERSION ?= 0.2.0
+VERSION ?= 0.3.0
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 DIST_DIR ?= $(CURDIR)/dist

@@ -21,7 +21,7 @@ const (
 
 // pluginVersion is a variable so tagged release builds can inject the exact
 // version with -ldflags without changing source between platforms.
-var pluginVersion = "0.2.0"
+var pluginVersion = "0.3.0"
 
 var currentConfig atomic.Value
 

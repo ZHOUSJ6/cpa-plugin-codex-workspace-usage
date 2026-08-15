@@ -132,12 +132,16 @@ When the plugin is enabled, the official CLIProxyAPI Management Center discovers
 
 The page provides:
 
+- Automatic reuse of the current Management Center session when opened from the plugin menu.
+- Automatic light, white, dark, and system-theme synchronization with the Management Center.
 - Codex account selection and 7/30/90-day range shortcuts.
 - Total Tokens, Turns, Credits, and returned-day summary cards.
 - Daily Token trend, input/output composition, peak-day signal, and daily detail table.
 - Responsive iframe and standalone layouts with no external frontend dependencies.
 
-CLIProxyAPI resource pages are intentionally browser-navigable and are not Management API-authenticated. The dashboard therefore contains only static HTML, CSS, and JavaScript until the operator enters the normal CLIProxyAPI management key. That key is sent only to same-server `/v0/management/codex-workspace-usage...` routes and is kept only in the current page's JavaScript memory; it is not written to local storage, plugin configuration, or the server. Refreshing or disconnecting clears it.
+CLIProxyAPI resource pages are intentionally browser-navigable and are not Management API-authenticated. The dashboard therefore contains only static HTML, CSS, and JavaScript. When embedded by the official Management Center, it reads the same-origin `cli-proxy-auth` session already maintained by the panel and uses that session only for same-server `/v0/management/codex-workspace-usage...` requests. This follows the established plugin integration used by other Management Center plugins.
+
+The plugin does not write, copy, or independently persist the management key. If the panel has no saved key, or if the dashboard is opened directly instead of through the Management Center, a compact temporary authentication fallback is shown. The fallback key remains only in the current page's JavaScript memory.
 
 ## Security notes
 

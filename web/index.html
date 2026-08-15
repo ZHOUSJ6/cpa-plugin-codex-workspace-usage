@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light dark">
   <title>Codex Workspace 用量</title>
   <style>
     :root {
@@ -536,6 +536,392 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
     }
+
+    /* Match the official CLIProxyAPI Management Center visual system. */
+    :root {
+      --ink: #faf9f5;
+      --panel: #f0eee8;
+      --panel-raised: #fffdf9;
+      --line: #e3e1db;
+      --line-strong: #d5d2cb;
+      --text: #2d2a26;
+      --muted: #6d6760;
+      --acid: #10b981;
+      --acid-soft: rgba(139, 134, 128, 0.18);
+      --amber: #d49a08;
+      --cyan: #8b8680;
+      --danger: #c65746;
+      --primary: #8b8680;
+      --primary-hover: #7f7a74;
+      --primary-active: #726d67;
+      --surface: #fffdf9;
+      --surface-hover: #e9e6df;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    [data-theme="white"] {
+      --ink: #ffffff;
+      --panel: #ffffff;
+      --panel-raised: #ffffff;
+      --line: #e5e5e5;
+      --line-strong: #d9d9d9;
+      --surface: #ffffff;
+      --surface-hover: #f6f6f6;
+    }
+
+    [data-theme="dark"] {
+      --ink: #151412;
+      --panel: #1d1b18;
+      --panel-raised: #2a2723;
+      --line: #3a3530;
+      --line-strong: #4a453f;
+      --text: #f6f4f1;
+      --muted: #c9c3bb;
+      --acid: #0fae78;
+      --acid-soft: rgba(139, 134, 128, 0.28);
+      --amber: #ffd862;
+      --cyan: #9a948e;
+      --primary: #8b8680;
+      --primary-hover: #9a948e;
+      --primary-active: #a6a099;
+      --surface: #2a2723;
+      --surface-hover: #2e2a26;
+      --shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+      color-scheme: dark;
+    }
+
+    [hidden] { display: none !important; }
+    html { background: var(--ink); }
+    body {
+      background: var(--ink);
+      color: var(--text);
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+    body::before { display: none; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline-color: var(--primary); }
+
+    .app {
+      width: min(1440px, 100%);
+      padding: 28px clamp(18px, 3vw, 40px) 40px;
+    }
+
+    .masthead {
+      align-items: center;
+      margin-bottom: 22px;
+      animation: none;
+    }
+
+    .eyebrow { display: none; }
+
+    h1 {
+      max-width: none;
+      font-family: inherit;
+      font-size: clamp(23px, 2.4vw, 30px);
+      font-weight: 650;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .live-state {
+      min-width: 0;
+      margin-top: 0;
+      border-color: var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      backdrop-filter: none;
+    }
+
+    .state-dot {
+      width: 7px;
+      height: 7px;
+      background: #a29c95;
+      box-shadow: none;
+    }
+
+    .live-state.connected {
+      border-color: #6ee7b7;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    [data-theme="dark"] .live-state.connected {
+      border-color: #059669;
+      background: rgba(6, 78, 59, 0.3);
+      color: #6ee7b7;
+    }
+
+    .live-state.connected .state-dot {
+      background: var(--acid);
+      box-shadow: none;
+    }
+
+    .panel {
+      border-color: var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: none;
+    }
+
+    .access-panel {
+      position: fixed;
+      z-index: 50;
+      top: 50%;
+      left: 50%;
+      width: min(430px, calc(100% - 32px));
+      grid-template-columns: 1fr;
+      gap: 18px;
+      align-items: start;
+      margin: 0;
+      padding: 24px;
+      overflow: visible;
+      background: var(--surface);
+      box-shadow: 0 14px 30px rgb(0 0 0 / 0.2);
+      transform: translate(-50%, -50%);
+      animation: none;
+    }
+
+    .access-panel::after { display: none; }
+    .panel-kicker { display: none; }
+    .panel-title { font-size: 18px; font-weight: 650; }
+    .panel-copy { color: var(--muted); font-size: 12px; }
+    .key-form { grid-template-columns: 1fr; }
+
+    input, select {
+      height: 38px;
+      border-color: var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      padding: 0 11px;
+    }
+
+    input:hover, select:hover { border-color: var(--primary-hover); }
+    input::placeholder { color: #a29c95; }
+
+    .icon-button {
+      top: 3px;
+      right: 3px;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    .icon-button:hover { background: var(--surface-hover); color: var(--text); }
+
+    .primary-button, .ghost-button {
+      min-height: 38px;
+      border-radius: var(--radius);
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: none;
+    }
+
+    .primary-button {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .primary-button:hover:not(:disabled) {
+      border-color: var(--primary-hover);
+      background: var(--primary-hover);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .ghost-button {
+      border-color: var(--line-strong);
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .connected-actions { display: none !important; }
+
+    .error-banner {
+      margin-bottom: 16px;
+      border-color: rgba(198, 87, 70, 0.35);
+      border-radius: var(--radius);
+      background: rgba(198, 87, 70, 0.1);
+      color: #8a3a30;
+      padding: 11px 13px;
+      font-size: 13px;
+    }
+
+    [data-theme="dark"] .error-banner {
+      border-color: rgba(198, 87, 70, 0.45);
+      background: rgba(198, 87, 70, 0.22);
+      color: #f1b0a6;
+    }
+
+    .query-panel {
+      grid-template-columns: minmax(230px, 1.45fr) minmax(145px, 0.75fr) minmax(145px, 0.75fr) auto;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding: 18px;
+      animation: none;
+    }
+
+    .field label {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    input[type="date"] { color-scheme: inherit; }
+
+    .preset-row { margin-top: 9px; }
+    .preset-label {
+      color: #a29c95;
+      font-size: 11px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .preset-button {
+      min-height: 28px;
+      border-color: var(--line);
+      background: transparent;
+      color: var(--muted);
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .preset-button:hover, .preset-button.active {
+      border-color: var(--primary);
+      background: var(--acid-soft);
+      color: var(--primary-active);
+    }
+
+    .metrics-grid { gap: 14px; margin-bottom: 16px; }
+
+    .metric-card {
+      min-height: 122px;
+      padding: 17px 18px;
+      animation: none;
+    }
+
+    .metric-card::after { display: none; }
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .metric-value {
+      margin-top: 14px;
+      color: var(--text) !important;
+      font-family: inherit;
+      font-size: clamp(25px, 3vw, 36px);
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    .metric-note { color: #a29c95; font-size: 11px; }
+
+    .content-grid { gap: 16px; margin-bottom: 16px; }
+    .chart-panel, .composition-panel, .table-panel {
+      padding: 18px;
+      animation: none;
+    }
+
+    .panel-head { margin-bottom: 16px; }
+    .panel-head h2 { font-size: 15px; font-weight: 650; }
+    .panel-head p { color: var(--muted); font-size: 11px; }
+
+    .range-chip {
+      border: 0;
+      background: var(--acid-soft);
+      color: var(--primary-active);
+      padding: 4px 9px;
+      font-family: var(--font-mono, ui-monospace, monospace);
+      font-size: 10px;
+    }
+
+    .chart-grid { stroke: var(--line); }
+    .chart-label { fill: #a29c95; font-family: inherit; }
+    .chart-line { stroke: var(--acid); stroke-width: 2.5; filter: none; }
+    .chart-point { fill: var(--panel); stroke: var(--acid); }
+    .empty-glyph { color: #a29c95; opacity: 1; }
+    .empty-chart strong { color: var(--text); }
+
+    .composition-meta span:first-child { color: var(--muted); }
+    .composition-meta strong { color: var(--text); }
+    .bar { height: 6px; background: var(--surface-hover); }
+    .bar-cached { background: var(--acid); }
+    .bar-uncached { background: var(--primary); }
+    .bar-output { background: var(--amber); }
+
+    .signal {
+      border-color: var(--line);
+      border-radius: var(--radius);
+      background: var(--ink);
+    }
+
+    .signal-label { color: var(--muted); letter-spacing: 0; text-transform: none; }
+    .signal-value { color: var(--text); font-family: inherit; font-size: 24px; font-weight: 650; }
+    .signal-note { color: #a29c95; }
+
+    .table-panel { padding-bottom: 8px; }
+    .table-scroll { scrollbar-color: var(--line) transparent; }
+    th, td { padding: 11px 10px; border-bottom-color: var(--line); }
+    th {
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    td { color: var(--muted); font-size: 12px; }
+    tbody tr:hover { background: var(--surface-hover); }
+    .date-cell, .total-cell { color: var(--text); font-weight: 600; }
+    .footer-note { color: #a29c95; }
+
+    .loading-sheen::before {
+      background: linear-gradient(100deg, transparent 25%, rgba(139, 134, 128, 0.08) 50%, transparent 75%);
+    }
+
+    @media (max-width: 980px) {
+      .query-panel { grid-template-columns: 1fr 1fr; }
+      .query-panel .field:first-child { grid-column: 1 / -1; }
+      .query-panel > .primary-button { width: 100%; }
+    }
+
+    @media (max-width: 620px) {
+      .app { padding: 20px 14px 30px; }
+      .access-panel { padding: 20px; }
+      .query-panel { grid-template-columns: 1fr; }
+      .query-panel .field:first-child { grid-column: auto; }
+      .query-panel > .primary-button { width: 100%; }
+      .metric-card { min-height: 108px; }
+    }
   </style>
 </head>
 <body>
@@ -543,33 +929,33 @@
     <header class="masthead">
       <div>
         <p class="eyebrow">Workspace telemetry</p>
-        <h1>Codex 用量观测台</h1>
+        <h1>Codex Workspace 用量</h1>
         <p class="subtitle">按工作区账号查看每日 Token、会话与 Credits 消耗。数据直接查询 Codex Analytics，不在插件中持久化。</p>
       </div>
       <div class="live-state" id="liveState" role="status" aria-live="polite">
         <span class="state-dot" aria-hidden="true"></span>
-        <span id="liveStateText">等待连接</span>
+        <span id="liveStateText">正在读取管理中心会话</span>
       </div>
     </header>
 
-    <section class="panel access-panel" aria-labelledby="accessTitle">
+    <section class="panel access-panel" id="accessPanel" aria-labelledby="accessTitle" hidden>
       <div>
         <p class="panel-kicker">Protected channel</p>
-        <h2 class="panel-title" id="accessTitle">连接管理 API</h2>
-        <p class="panel-copy">插件页面与管理面板相互隔离。管理密钥只保留在本页运行内存中，刷新或断开后立即清除。</p>
+        <h2 class="panel-title" id="accessTitle">管理身份验证</h2>
+        <p class="panel-copy">未能读取管理中心保存的会话。请从管理中心菜单打开；如需独立访问，可在这里临时验证。</p>
       </div>
       <form class="key-form" id="keyForm" autocomplete="off">
         <div class="secret-wrap">
-          <input id="managementKey" type="password" placeholder="输入 CLIProxyAPI 管理密钥" aria-label="CLIProxyAPI 管理密钥" autocomplete="off" spellcheck="false">
+          <input id="managementKey" type="password" placeholder="Management Key" aria-label="CLIProxyAPI 管理密钥" autocomplete="current-password" spellcheck="false">
           <button class="icon-button" id="toggleKey" type="button" aria-label="显示管理密钥" title="显示或隐藏管理密钥">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
           </button>
         </div>
-        <button class="primary-button" id="connectButton" type="submit">连接并读取账号</button>
+        <button class="primary-button" id="connectButton" type="submit">验证并继续</button>
       </form>
-      <div class="connected-actions" id="connectedActions">
+      <div class="connected-actions" id="connectedActions" hidden>
         <span class="connected-copy">已安全连接 · <strong id="accountCount">0 个账号</strong></span>
-        <button class="ghost-button" id="disconnectButton" type="button">断开</button>
+        <button class="ghost-button" id="disconnectButton" type="button">重新验证</button>
       </div>
     </section>
 
@@ -581,7 +967,7 @@
     <section class="panel query-panel" aria-label="查询条件">
       <div class="field">
         <label for="accountSelect">Workspace 账号</label>
-        <select id="accountSelect" disabled><option value="">连接后选择账号</option></select>
+        <select id="accountSelect" disabled><option value="">正在读取账号</option></select>
       </div>
       <div class="field date-field">
         <label for="startDate">开始日期</label>
@@ -636,8 +1022,8 @@
           <svg id="usageChart" viewBox="0 0 1000 310" role="img" aria-label="每日 Token 用量趋势图"></svg>
           <div class="empty-chart" id="emptyChart">
             <div class="empty-glyph">⌁⌁⌁</div>
-            <strong>等待用量数据</strong>
-            <span>连接账号并选择日期范围后开始查询</span>
+            <strong>暂无用量数据</strong>
+            <span>账号读取完成后会自动查询近 30 天数据</span>
           </div>
         </div>
       </article>
@@ -693,7 +1079,7 @@
             </tr>
           </thead>
           <tbody id="usageRows">
-            <tr class="table-empty"><td colspan="8">连接管理 API 后查看每日明细</td></tr>
+            <tr class="table-empty"><td colspan="8">正在读取管理中心会话</td></tr>
           </tbody>
         </table>
       </div>
@@ -712,10 +1098,17 @@
       const resourceMarker = '/v0/resource/plugins/';
       const markerIndex = window.location.pathname.indexOf(resourceMarker);
       const pathPrefix = markerIndex >= 0 ? window.location.pathname.slice(0, markerIndex) : '';
-      const apiRoot = `${pathPrefix}/v0/management/codex-workspace-usage`;
+      const defaultAPIBase = window.location.origin + pathPrefix;
+      const managementPath = '/v0/management/codex-workspace-usage';
+      const authStorageKey = 'cli-proxy-auth';
+      const themeStorageKey = 'cli-proxy-theme';
+      const encryptedPrefix = 'enc::v1::';
+      const storageSalt = 'cli-proxy-api-webui::secure-storage';
+      let apiRoot = pathPrefix + managementPath;
 
       const byId = (id) => document.getElementById(id);
       const elements = {
+        accessPanel: byId('accessPanel'),
         keyForm: byId('keyForm'),
         managementKey: byId('managementKey'),
         toggleKey: byId('toggleKey'),
@@ -753,7 +1146,7 @@
         lastUpdated: byId('lastUpdated'),
       };
 
-      const state = { managementKey: '', connected: false, loading: false, accounts: [], result: null };
+      const state = { apiBase: '', managementKey: '', connected: false, loading: false, accounts: [], result: null };
       const integerFormatter = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 0 });
       const compactFormatter = new Intl.NumberFormat('zh-CN', { notation: 'compact', maximumFractionDigits: 1 });
       const decimalFormatter = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 });
@@ -772,6 +1165,96 @@
         upstream_rate_limited: 'Codex Analytics 请求过于频繁，请稍后重试。',
         upstream_unavailable: 'Codex Analytics 暂时不可用，请稍后重试。',
       };
+
+      function isEmbedded() {
+        try {
+          return window.self !== window.top;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function xorBytes(data, key) {
+        const output = new Uint8Array(data.length);
+        for (let index = 0; index < data.length; index += 1) {
+          output[index] = data[index] ^ key[index % key.length];
+        }
+        return output;
+      }
+
+      function decodeStoredValue(value) {
+        if (!value.startsWith(encryptedPrefix)) return value;
+        const binary = atob(value.slice(encryptedPrefix.length));
+        const encrypted = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+        const key = new TextEncoder().encode(storageSalt + '|' + window.location.host + '|' + navigator.userAgent);
+        return new TextDecoder().decode(xorBytes(encrypted, key));
+      }
+
+      function extractPanelAuth(value) {
+        if (!value || typeof value !== 'object') return null;
+        const savedState = value.state && typeof value.state === 'object' ? value.state : value;
+        const apiBase = typeof savedState.apiBase === 'string' ? savedState.apiBase.trim() : '';
+        const managementKey = typeof savedState.managementKey === 'string' ? savedState.managementKey.trim() : '';
+        if (!apiBase || !managementKey) return null;
+        return { apiBase, managementKey };
+      }
+
+      function readPanelAuth() {
+        if (!isEmbedded()) return null;
+        try {
+          const raw = localStorage.getItem(authStorageKey);
+          if (!raw) return null;
+          return extractPanelAuth(JSON.parse(decodeStoredValue(raw)));
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function readPanelTheme() {
+        try {
+          const raw = localStorage.getItem(themeStorageKey);
+          if (!raw) return 'auto';
+          const parsed = JSON.parse(raw);
+          const savedState = parsed && parsed.state && typeof parsed.state === 'object' ? parsed.state : parsed;
+          return typeof savedState.theme === 'string' ? savedState.theme : 'auto';
+        } catch (_) {
+          return 'auto';
+        }
+      }
+
+      function applyPanelTheme() {
+        const theme = readPanelTheme();
+        const resolved = theme === 'auto'
+          ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'white')
+          : theme;
+        if (resolved === 'dark' || resolved === 'white') {
+          document.documentElement.setAttribute('data-theme', resolved);
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }
+
+      function normalizeAPIBase(value) {
+        let base = String(value || '').trim();
+        if (!base) return defaultAPIBase;
+        base = base.replace(/\/?v0\/management\/?$/i, '').replace(/\/+$/, '');
+        if (!/^https?:\/\//i.test(base)) base = 'http://' + base;
+        try {
+          const parsed = new URL(base);
+          if (parsed.origin === window.location.origin && (parsed.pathname === '' || parsed.pathname === '/') && pathPrefix) {
+            return defaultAPIBase;
+          }
+        } catch (_) {
+          return base;
+        }
+        return base;
+      }
+
+      function setSession(apiBase, managementKey) {
+        state.apiBase = normalizeAPIBase(apiBase);
+        state.managementKey = String(managementKey || '').trim();
+        apiRoot = state.apiBase + managementPath;
+      }
 
       function localISO(date) {
         const year = date.getFullYear();
@@ -809,8 +1292,8 @@
       }
 
       function friendlyError(payload, status) {
-        if (status === 401) return '管理密钥无效，或 Management API 会话已失效。';
-        if (status === 403) return '当前连接无权访问 Management API。';
+        if (status === 401) return '管理中心会话已失效，请重新登录或临时验证。';
+        if (status === 403) return '当前管理身份无权访问此接口。';
         if (payload && messages[payload.error]) return messages[payload.error];
         if (payload && typeof payload.message === 'string' && payload.message.trim()) return payload.message;
         return `请求失败（HTTP ${status}）`;
@@ -823,17 +1306,20 @@
           response = await fetch(`${apiRoot}${path}${query}`, {
             method: 'GET',
             cache: 'no-store',
-            credentials: 'omit',
+            credentials: 'same-origin',
             headers: { Accept: 'application/json', Authorization: `Bearer ${state.managementKey}` },
           });
         } catch (_) {
-          throw new Error('无法连接 CLIProxyAPI，请检查服务地址和网络状态。');
+          const networkError = new Error('无法连接 CLIProxyAPI，请检查服务地址和网络状态。');
+          networkError.status = 0;
+          throw networkError;
         }
         let payload = null;
         try { payload = await response.json(); } catch (_) { /* keep sanitized fallback */ }
         if (!response.ok) {
-          if (response.status === 401) disconnect(false);
-          throw new Error(friendlyError(payload, response.status));
+          const requestError = new Error(friendlyError(payload, response.status));
+          requestError.status = response.status;
+          throw requestError;
         }
         return payload;
       }
@@ -862,12 +1348,13 @@
         elements.accountCount.textContent = `${state.accounts.length} 个账号`;
       }
 
-      function setConnected(connected) {
+      function setConnected(connected, revealAuthentication = !connected) {
         state.connected = connected;
         elements.liveState.classList.toggle('connected', connected);
-        elements.liveStateText.textContent = connected ? '安全连接' : '等待连接';
-        elements.keyForm.style.display = connected ? 'none' : 'grid';
-        elements.connectedActions.classList.toggle('visible', connected);
+        elements.liveStateText.textContent = connected ? '已连接 · ' + state.accounts.length + ' 个账号' : '需要管理身份验证';
+        elements.accessPanel.hidden = connected || !revealAuthentication;
+        elements.keyForm.style.display = 'grid';
+        elements.connectedActions.classList.remove('visible');
         elements.accountSelect.disabled = !connected;
         elements.startDate.disabled = !connected;
         elements.endDate.disabled = !connected;
@@ -879,30 +1366,33 @@
         state.loading = loading;
         elements.connectButton.disabled = loading;
         elements.queryButton.disabled = loading || !state.connected || !elements.accountSelect.value;
-        elements.connectButton.textContent = loading && !state.connected ? '正在连接…' : '连接并读取账号';
+        elements.connectButton.textContent = loading && !state.connected ? '正在验证…' : '验证并继续';
         elements.queryButton.textContent = loading && state.connected ? '查询中…' : '查询用量';
         elements.chartPanel.classList.toggle('loading-sheen', loading && state.connected);
+        if (loading) elements.liveStateText.textContent = state.connected ? '正在查询用量' : '正在读取 Codex 账号';
       }
 
-      function disconnect(clearError = true) {
+      function disconnect(clearError = true, revealAuthentication = true) {
+        state.apiBase = '';
         state.managementKey = '';
         state.accounts = [];
         state.result = null;
         elements.managementKey.value = '';
         renderAccounts();
-        setConnected(false);
-        resetDashboard();
+        setConnected(false, revealAuthentication);
+        resetDashboard('验证管理身份后查看每日明细');
         if (clearError) setError('');
       }
 
-      async function connect() {
-        const key = elements.managementKey.value.trim();
+      async function connect(panelAuth = null) {
+        const key = panelAuth ? panelAuth.managementKey : elements.managementKey.value.trim();
         if (!key) {
           setError('请输入 CLIProxyAPI 管理密钥。');
+          elements.accessPanel.hidden = false;
           elements.managementKey.focus();
           return;
         }
-        state.managementKey = key;
+        setSession(panelAuth ? panelAuth.apiBase : defaultAPIBase, key);
         setError('');
         setLoading(true);
         try {
@@ -917,9 +1407,10 @@
           setLoading(false);
           await runQuery();
         } catch (error) {
-          state.managementKey = '';
-          setConnected(false);
-          setError(error instanceof Error ? error.message : '连接失败。');
+          const authenticationFailed = error && (error.status === 401 || error.status === 403);
+          disconnect(false, authenticationFailed || !panelAuth);
+          if (!authenticationFailed && panelAuth) elements.liveStateText.textContent = '账号读取失败';
+          setError(error instanceof Error ? error.message : '账号读取失败。');
         } finally {
           setLoading(false);
         }
@@ -937,14 +1428,20 @@
         try {
           state.result = await apiFetch('', { auth_index: authIndex, start_date: startDate, end_date: endDate });
           renderResult(state.result);
+          elements.liveStateText.textContent = '已连接 · ' + state.accounts.length + ' 个账号';
         } catch (error) {
+          if (error && (error.status === 401 || error.status === 403)) {
+            disconnect(false, true);
+          } else {
+            elements.liveStateText.textContent = '用量查询失败';
+          }
           setError(error instanceof Error ? error.message : '查询失败。');
         } finally {
           setLoading(false);
         }
       }
 
-      function resetDashboard() {
+      function resetDashboard(message = '暂无每日用量数据') {
         ['metricTokens', 'metricTurns', 'metricCredits', 'metricDays'].forEach((key) => { elements[key].textContent = '—'; });
         elements.rangeChip.textContent = '暂无区间';
         elements.cachedValue.textContent = '—';
@@ -957,7 +1454,7 @@
         elements.peakNote.textContent = '查询后显示 Token 使用量最高的日期';
         elements.usageChart.replaceChildren();
         elements.emptyChart.classList.remove('hidden');
-        elements.usageRows.replaceChildren(emptyRow('连接管理 API 后查看每日明细'));
+        elements.usageRows.replaceChildren(emptyRow(message));
         elements.tableCaption.textContent = '暂无查询结果';
         elements.lastUpdated.textContent = '尚未查询';
       }
@@ -1108,6 +1605,18 @@
         });
       }
 
+      async function bootstrapFromPanel() {
+        applyPanelTheme();
+        const panelAuth = readPanelAuth();
+        if (!panelAuth) {
+          setConnected(false, true);
+          resetDashboard('验证管理身份后查看每日明细');
+          return;
+        }
+        setConnected(false, false);
+        await connect(panelAuth);
+      }
+
       elements.keyForm.addEventListener('submit', (event) => { event.preventDefault(); void connect(); });
       elements.disconnectButton.addEventListener('click', () => disconnect());
       elements.queryButton.addEventListener('click', () => void runQuery());
@@ -1116,12 +1625,36 @@
         elements.managementKey.type = hidden ? 'text' : 'password';
         elements.toggleKey.setAttribute('aria-label', hidden ? '隐藏管理密钥' : '显示管理密钥');
       });
-      elements.presetButtons.forEach((button) => button.addEventListener('click', () => setPreset(Number(button.dataset.days))));
+      elements.presetButtons.forEach((button) => button.addEventListener('click', () => {
+        setPreset(Number(button.dataset.days));
+        void runQuery();
+      }));
       [elements.startDate, elements.endDate].forEach((input) => input.addEventListener('change', () => elements.presetButtons.forEach((button) => button.classList.remove('active'))));
 
+      window.addEventListener('storage', (event) => {
+        if (event.key === themeStorageKey) applyPanelTheme();
+        if (event.key === authStorageKey && isEmbedded()) {
+          const panelAuth = readPanelAuth();
+          if (!panelAuth) {
+            disconnect(false, true);
+            setError('管理中心已退出登录。');
+            return;
+          }
+          const baseChanged = normalizeAPIBase(panelAuth.apiBase) !== state.apiBase;
+          if (panelAuth.managementKey !== state.managementKey || baseChanged) void connect(panelAuth);
+        }
+      });
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (readPanelTheme() === 'auto') applyPanelTheme();
+        });
+      }
+
       setPreset(30);
-      resetDashboard();
-      setConnected(false);
+      resetDashboard('正在读取管理中心会话');
+      setConnected(false, false);
+      void bootstrapFromPanel();
     })();
   </script>
 </body>
