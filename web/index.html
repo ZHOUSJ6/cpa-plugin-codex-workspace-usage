@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Codex Workspace 用量</title>
+  <style>
+    :root {
+      --ink: #07100d;
+      --panel: #0d1814;
+      --panel-raised: #12211b;
+      --line: rgba(194, 255, 218, 0.13);
+      --line-strong: rgba(194, 255, 218, 0.24);
+      --text: #effbf3;
+      --muted: #8ea99a;
+      --acid: #78f6a8;
+      --acid-soft: rgba(120, 246, 168, 0.13);
+      --amber: #ffc96b;
+      --cyan: #7bdcf2;
+      --danger: #ff887a;
+      --radius: 18px;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; background: var(--ink); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 83% 8%, rgba(66, 183, 116, 0.12), transparent 31rem),
+        radial-gradient(circle at -8% 58%, rgba(72, 158, 178, 0.08), transparent 28rem),
+        linear-gradient(180deg, #07100d 0%, #09130f 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.38;
+      background-image:
+        linear-gradient(rgba(193, 255, 217, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(193, 255, 217, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--acid);
+      outline-offset: 2px;
+    }
+
+    .app {
+      position: relative;
+      width: min(1480px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 34px clamp(18px, 3vw, 48px) 54px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 24px;
+      animation: reveal 440ms ease-out both;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 10px;
+      color: var(--acid);
+      font-family: "DIN Alternate", "Avenir Next Condensed", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.19em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 1px;
+      background: currentColor;
+      box-shadow: 10px 0 16px currentColor;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "PingFang SC", sans-serif;
+      font-size: clamp(38px, 5.2vw, 74px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 0.96;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .live-state {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 132px;
+      margin-top: 7px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(9, 19, 15, 0.68);
+      color: var(--muted);
+      font-family: "DIN Alternate", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      backdrop-filter: blur(12px);
+    }
+
+    .state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #62756b;
+      box-shadow: 0 0 0 4px rgba(98, 117, 107, 0.12);
+      transition: 220ms ease;
+    }
+
+    .live-state.connected { color: var(--acid); border-color: rgba(120, 246, 168, 0.25); }
+    .live-state.connected .state-dot {
+      background: var(--acid);
+      box-shadow: 0 0 0 4px rgba(120, 246, 168, 0.12), 0 0 18px rgba(120, 246, 168, 0.55);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(18, 33, 27, 0.93), rgba(11, 22, 17, 0.94));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .access-panel {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(330px, 1.28fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 20px;
+      padding: 22px 24px;
+      overflow: hidden;
+      animation: reveal 440ms 70ms ease-out both;
+    }
+
+    .access-panel::after {
+      content: "AUTH";
+      position: absolute;
+      right: -8px;
+      top: -20px;
+      color: rgba(213, 255, 229, 0.025);
+      font-family: "DIN Condensed", sans-serif;
+      font-size: 112px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      pointer-events: none;
+    }
+
+    .panel-kicker {
+      margin: 0 0 7px;
+      color: var(--amber);
+      font-family: "DIN Alternate", sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+    }
+
+    .panel-title { margin: 0; font-size: 17px; font-weight: 650; }
+    .panel-copy { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .key-form {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .secret-wrap { position: relative; }
+    .secret-wrap input { padding-right: 46px; }
+
+    .icon-button {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .icon-button:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
+    .icon-button svg { width: 17px; height: 17px; }
+
+    input, select {
+      width: 100%;
+      height: 46px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: rgba(4, 12, 8, 0.72);
+      color: var(--text);
+      padding: 0 13px;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    input:hover, select:hover { border-color: rgba(194, 255, 218, 0.38); }
+    input::placeholder { color: #647a6e; }
+    select:disabled, input:disabled { cursor: not-allowed; opacity: 0.52; }
+
+    .primary-button, .ghost-button {
+      min-height: 46px;
+      border-radius: 12px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .primary-button {
+      background: var(--acid);
+      color: #07120c;
+      box-shadow: 0 8px 24px rgba(120, 246, 168, 0.16);
+    }
+
+    .primary-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 11px 28px rgba(120, 246, 168, 0.23); }
+    .primary-button:active:not(:disabled) { transform: translateY(1px); }
+    .primary-button:disabled { cursor: not-allowed; opacity: 0.48; box-shadow: none; }
+
+    .ghost-button {
+      border-color: var(--line-strong);
+      background: rgba(255, 255, 255, 0.025);
+      color: var(--text);
+    }
+
+    .ghost-button:hover:not(:disabled) { border-color: rgba(194, 255, 218, 0.4); background: rgba(255, 255, 255, 0.05); }
+
+    .connected-actions { display: none; align-items: center; justify-content: flex-end; gap: 12px; }
+    .connected-actions.visible { display: flex; }
+    .connected-copy { color: var(--muted); font-size: 12px; }
+    .connected-copy strong { color: var(--acid); font-weight: 650; }
+
+    .error-banner {
+      display: none;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 136, 122, 0.3);
+      border-radius: 14px;
+      background: rgba(255, 136, 122, 0.08);
+      color: #ffd7d1;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .error-banner.visible { display: flex; animation: reveal 220ms ease-out both; }
+    .error-mark { color: var(--danger); font-family: monospace; font-weight: 800; }
+
+    .query-panel {
+      display: grid;
+      grid-template-columns: minmax(230px, 1.4fr) minmax(150px, 0.8fr) minmax(150px, 0.8fr) auto;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 20px;
+      padding: 20px 22px;
+      animation: reveal 440ms 110ms ease-out both;
+    }
+
+    .field label {
+      display: block;
+      margin: 0 0 8px 2px;
+      color: var(--muted);
+      font-family: "DIN Alternate", sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .account-option { color: var(--text); }
+
+    .date-field { position: relative; }
+    input[type="date"] { color-scheme: dark; }
+
+    .preset-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 11px;
+      grid-column: 1 / -1;
+    }
+
+    .preset-label { margin-right: 3px; color: #6f8879; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .preset-button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .preset-button:hover, .preset-button.active {
+      border-color: rgba(120, 246, 168, 0.32);
+      background: var(--acid-soft);
+      color: var(--acid);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      position: relative;
+      min-height: 142px;
+      padding: 19px 20px 17px;
+      overflow: hidden;
+      animation: reveal 440ms calc(140ms + var(--i) * 45ms) ease-out both;
+    }
+
+    .metric-card::after {
+      content: attr(data-index);
+      position: absolute;
+      right: 13px;
+      top: 9px;
+      color: rgba(216, 255, 230, 0.055);
+      font-family: "DIN Condensed", sans-serif;
+      font-size: 50px;
+      font-weight: 800;
+    }
+
+    .metric-label { color: var(--muted); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; }
+    .metric-value {
+      margin-top: 18px;
+      font-family: "DIN Alternate", "Avenir Next Condensed", sans-serif;
+      font-size: clamp(27px, 3vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-note { margin-top: 9px; color: #698175; font-size: 10px; }
+    .metric-acid .metric-value { color: var(--acid); }
+    .metric-cyan .metric-value { color: var(--cyan); }
+    .metric-amber .metric-value { color: var(--amber); }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.75fr) minmax(270px, 0.75fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-panel, .composition-panel, .table-panel {
+      padding: 22px;
+      animation: reveal 440ms 300ms ease-out both;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h2 { margin: 0; font-size: 16px; font-weight: 650; }
+    .panel-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .range-chip {
+      flex: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      padding: 6px 10px;
+      font-family: "DIN Alternate", sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .chart-wrap { position: relative; min-height: 310px; }
+    #usageChart { display: block; width: 100%; min-height: 310px; overflow: visible; }
+    .chart-grid { stroke: rgba(194, 255, 218, 0.09); stroke-width: 1; }
+    .chart-label { fill: #70877a; font-size: 11px; font-family: "DIN Alternate", sans-serif; }
+    .chart-line { fill: none; stroke: var(--acid); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 7px rgba(120, 246, 168, 0.3)); }
+    .chart-area { fill: url(#areaGradient); }
+    .chart-point { fill: #08100d; stroke: var(--acid); stroke-width: 2; }
+
+    .empty-chart {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-chart.hidden { display: none; }
+    .empty-glyph { margin-bottom: 12px; color: var(--acid); font-family: monospace; font-size: 28px; letter-spacing: 0.16em; opacity: 0.65; }
+    .empty-chart strong { color: var(--text); font-size: 13px; font-weight: 600; }
+    .empty-chart span { margin-top: 5px; font-size: 11px; }
+
+    .composition-panel { animation-delay: 350ms; }
+    .composition-list { display: grid; gap: 18px; margin-top: 26px; }
+    .composition-item { display: grid; gap: 8px; }
+    .composition-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; }
+    .composition-meta span:first-child { color: var(--muted); }
+    .composition-meta strong { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .bar { height: 7px; overflow: hidden; border-radius: 999px; background: rgba(255, 255, 255, 0.045); }
+    .bar > span { display: block; width: 0; height: 100%; border-radius: inherit; transition: width 500ms cubic-bezier(.2,.8,.2,1); }
+    .bar-cached { background: var(--acid); }
+    .bar-uncached { background: var(--cyan); }
+    .bar-output { background: var(--amber); }
+
+    .signal {
+      margin-top: 27px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(4, 11, 8, 0.34);
+    }
+
+    .signal-label { color: var(--muted); font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; }
+    .signal-value { margin-top: 8px; color: var(--acid); font-family: "DIN Alternate", sans-serif; font-size: 22px; font-weight: 700; }
+    .signal-note { margin-top: 4px; color: #657c70; font-size: 10px; line-height: 1.45; }
+
+    .table-panel { padding-bottom: 12px; animation-delay: 390ms; }
+    .table-scroll { overflow-x: auto; scrollbar-color: #355044 transparent; }
+    table { width: 100%; min-width: 890px; border-collapse: collapse; }
+    th, td { padding: 13px 12px; border-bottom: 1px solid rgba(194, 255, 218, 0.08); text-align: right; white-space: nowrap; }
+    th {
+      color: #6f887a;
+      font-family: "DIN Alternate", sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    td { color: #c9dacf; font-size: 12px; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    tbody tr { transition: background 140ms ease; }
+    tbody tr:hover { background: rgba(120, 246, 168, 0.035); }
+    .date-cell { color: var(--text); font-weight: 600; }
+    .total-cell { color: var(--acid); }
+    .table-empty td { height: 98px; color: var(--muted); text-align: center; }
+
+    .footer-note {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 18px;
+      color: #587063;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .loading-sheen { position: relative; overflow: hidden; }
+    .loading-sheen::before {
+      content: "";
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      background: linear-gradient(100deg, transparent 25%, rgba(120, 246, 168, 0.055) 48%, transparent 72%);
+      transform: translateX(-100%);
+      animation: sheen 1.15s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes sheen { to { transform: translateX(100%); } }
+
+    @media (max-width: 980px) {
+      .access-panel { grid-template-columns: 1fr; align-items: start; }
+      .query-panel { grid-template-columns: 1fr 1fr; }
+      .query-panel .field:first-child { grid-column: 1 / -1; }
+      .query-panel > .primary-button { width: 100%; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .app { padding: 24px 14px 36px; }
+      .masthead { grid-template-columns: 1fr; gap: 12px; }
+      .live-state { justify-self: start; }
+      .access-panel, .query-panel, .chart-panel, .composition-panel, .table-panel { padding: 17px; }
+      .key-form { grid-template-columns: 1fr; }
+      .query-panel { grid-template-columns: 1fr; }
+      .query-panel .field:first-child { grid-column: auto; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .metric-card { min-height: 124px; }
+      .footer-note { flex-direction: column; }
+      .connected-actions { align-items: flex-end; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Workspace telemetry</p>
+        <h1>Codex 用量观测台</h1>
+        <p class="subtitle">按工作区账号查看每日 Token、会话与 Credits 消耗。数据直接查询 Codex Analytics，不在插件中持久化。</p>
+      </div>
+      <div class="live-state" id="liveState" role="status" aria-live="polite">
+        <span class="state-dot" aria-hidden="true"></span>
+        <span id="liveStateText">等待连接</span>
+      </div>
+    </header>
+
+    <section class="panel access-panel" aria-labelledby="accessTitle">
+      <div>
+        <p class="panel-kicker">Protected channel</p>
+        <h2 class="panel-title" id="accessTitle">连接管理 API</h2>
+        <p class="panel-copy">插件页面与管理面板相互隔离。管理密钥只保留在本页运行内存中，刷新或断开后立即清除。</p>
+      </div>
+      <form class="key-form" id="keyForm" autocomplete="off">
+        <div class="secret-wrap">
+          <input id="managementKey" type="password" placeholder="输入 CLIProxyAPI 管理密钥" aria-label="CLIProxyAPI 管理密钥" autocomplete="off" spellcheck="false">
+          <button class="icon-button" id="toggleKey" type="button" aria-label="显示管理密钥" title="显示或隐藏管理密钥">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+          </button>
+        </div>
+        <button class="primary-button" id="connectButton" type="submit">连接并读取账号</button>
+      </form>
+      <div class="connected-actions" id="connectedActions">
+        <span class="connected-copy">已安全连接 · <strong id="accountCount">0 个账号</strong></span>
+        <button class="ghost-button" id="disconnectButton" type="button">断开</button>
+      </div>
+    </section>
+
+    <div class="error-banner" id="errorBanner" role="alert">
+      <span class="error-mark" aria-hidden="true">!</span>
+      <span id="errorText"></span>
+    </div>
+
+    <section class="panel query-panel" aria-label="查询条件">
+      <div class="field">
+        <label for="accountSelect">Workspace 账号</label>
+        <select id="accountSelect" disabled><option value="">连接后选择账号</option></select>
+      </div>
+      <div class="field date-field">
+        <label for="startDate">开始日期</label>
+        <input id="startDate" type="date" disabled>
+      </div>
+      <div class="field date-field">
+        <label for="endDate">结束日期</label>
+        <input id="endDate" type="date" disabled>
+      </div>
+      <button class="primary-button" id="queryButton" type="button" disabled>查询用量</button>
+      <div class="preset-row" aria-label="快捷日期范围">
+        <span class="preset-label">快速范围</span>
+        <button class="preset-button" type="button" data-days="7" disabled>近 7 天</button>
+        <button class="preset-button active" type="button" data-days="30" disabled>近 30 天</button>
+        <button class="preset-button" type="button" data-days="90" disabled>近 90 天</button>
+      </div>
+    </section>
+
+    <section class="metrics-grid" aria-label="用量汇总">
+      <article class="panel metric-card metric-acid" style="--i:0" data-index="01">
+        <div class="metric-label">总 Tokens</div>
+        <div class="metric-value" id="metricTokens">—</div>
+        <div class="metric-note">所选时间范围累计</div>
+      </article>
+      <article class="panel metric-card metric-cyan" style="--i:1" data-index="02">
+        <div class="metric-label">Turns</div>
+        <div class="metric-value" id="metricTurns">—</div>
+        <div class="metric-note">Codex 交互轮次</div>
+      </article>
+      <article class="panel metric-card metric-amber" style="--i:2" data-index="03">
+        <div class="metric-label">Credits</div>
+        <div class="metric-value" id="metricCredits">—</div>
+        <div class="metric-note">上游返回的 Credits 合计</div>
+      </article>
+      <article class="panel metric-card" style="--i:3" data-index="04">
+        <div class="metric-label">活跃数据日</div>
+        <div class="metric-value" id="metricDays">—</div>
+        <div class="metric-note">实际返回记录的日期数</div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel chart-panel" id="chartPanel">
+        <div class="panel-head">
+          <div>
+            <h2>Token 日趋势</h2>
+            <p>每日 text_total_tokens；未返回的日期不会被补零。</p>
+          </div>
+          <span class="range-chip" id="rangeChip">暂无区间</span>
+        </div>
+        <div class="chart-wrap">
+          <svg id="usageChart" viewBox="0 0 1000 310" role="img" aria-label="每日 Token 用量趋势图"></svg>
+          <div class="empty-chart" id="emptyChart">
+            <div class="empty-glyph">⌁⌁⌁</div>
+            <strong>等待用量数据</strong>
+            <span>连接账号并选择日期范围后开始查询</span>
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel composition-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Token 构成</h2>
+            <p>缓存输入、非缓存输入与输出占比</p>
+          </div>
+        </div>
+        <div class="composition-list">
+          <div class="composition-item">
+            <div class="composition-meta"><span>缓存输入</span><strong id="cachedValue">—</strong></div>
+            <div class="bar"><span class="bar-cached" id="cachedBar"></span></div>
+          </div>
+          <div class="composition-item">
+            <div class="composition-meta"><span>非缓存输入</span><strong id="uncachedValue">—</strong></div>
+            <div class="bar"><span class="bar-uncached" id="uncachedBar"></span></div>
+          </div>
+          <div class="composition-item">
+            <div class="composition-meta"><span>文本输出</span><strong id="outputValue">—</strong></div>
+            <div class="bar"><span class="bar-output" id="outputBar"></span></div>
+          </div>
+        </div>
+        <div class="signal">
+          <div class="signal-label">峰值日</div>
+          <div class="signal-value" id="peakValue">—</div>
+          <div class="signal-note" id="peakNote">查询后显示 Token 使用量最高的日期</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-head">
+        <div>
+          <h2>每日明细</h2>
+          <p id="tableCaption">暂无查询结果</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">日期</th>
+              <th scope="col">总 Tokens</th>
+              <th scope="col">缓存输入</th>
+              <th scope="col">非缓存输入</th>
+              <th scope="col">文本输出</th>
+              <th scope="col">Turns</th>
+              <th scope="col">Threads</th>
+              <th scope="col">Credits</th>
+            </tr>
+          </thead>
+          <tbody id="usageRows">
+            <tr class="table-empty"><td colspan="8">连接管理 API 后查看每日明细</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      <span>数据源：ChatGPT Codex Analytics 私有接口 · 页面和响应均禁止缓存</span>
+      <span id="lastUpdated">尚未查询</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const resourceMarker = '/v0/resource/plugins/';
+      const markerIndex = window.location.pathname.indexOf(resourceMarker);
+      const pathPrefix = markerIndex >= 0 ? window.location.pathname.slice(0, markerIndex) : '';
+      const apiRoot = `${pathPrefix}/v0/management/codex-workspace-usage`;
+
+      const byId = (id) => document.getElementById(id);
+      const elements = {
+        keyForm: byId('keyForm'),
+        managementKey: byId('managementKey'),
+        toggleKey: byId('toggleKey'),
+        connectButton: byId('connectButton'),
+        connectedActions: byId('connectedActions'),
+        disconnectButton: byId('disconnectButton'),
+        accountCount: byId('accountCount'),
+        liveState: byId('liveState'),
+        liveStateText: byId('liveStateText'),
+        errorBanner: byId('errorBanner'),
+        errorText: byId('errorText'),
+        accountSelect: byId('accountSelect'),
+        startDate: byId('startDate'),
+        endDate: byId('endDate'),
+        queryButton: byId('queryButton'),
+        presetButtons: [...document.querySelectorAll('.preset-button')],
+        metricTokens: byId('metricTokens'),
+        metricTurns: byId('metricTurns'),
+        metricCredits: byId('metricCredits'),
+        metricDays: byId('metricDays'),
+        chartPanel: byId('chartPanel'),
+        usageChart: byId('usageChart'),
+        emptyChart: byId('emptyChart'),
+        rangeChip: byId('rangeChip'),
+        cachedValue: byId('cachedValue'),
+        uncachedValue: byId('uncachedValue'),
+        outputValue: byId('outputValue'),
+        cachedBar: byId('cachedBar'),
+        uncachedBar: byId('uncachedBar'),
+        outputBar: byId('outputBar'),
+        peakValue: byId('peakValue'),
+        peakNote: byId('peakNote'),
+        usageRows: byId('usageRows'),
+        tableCaption: byId('tableCaption'),
+        lastUpdated: byId('lastUpdated'),
+      };
+
+      const state = { managementKey: '', connected: false, loading: false, accounts: [], result: null };
+      const integerFormatter = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 0 });
+      const compactFormatter = new Intl.NumberFormat('zh-CN', { notation: 'compact', maximumFractionDigits: 1 });
+      const decimalFormatter = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 });
+
+      const messages = {
+        auth_index_required: '请选择一个 Codex Workspace 账号。',
+        date_range_required: '请选择完整的开始和结束日期。',
+        invalid_date: '日期格式无效，请重新选择。',
+        invalid_date_range: '结束日期不能早于开始日期。',
+        date_range_too_large: '查询范围超过插件配置允许的最大天数。',
+        auth_not_found: '所选账号已经不存在，请重新读取账号列表。',
+        auth_not_codex: '所选凭据不是 Codex OAuth 凭据。',
+        auth_unavailable: '所选账号已禁用或暂时不可用。',
+        upstream_unauthorized: 'Codex 凭据已过期或未获授权，请先重新登录账号。',
+        upstream_forbidden: '当前账号无权访问 Workspace Analytics。',
+        upstream_rate_limited: 'Codex Analytics 请求过于频繁，请稍后重试。',
+        upstream_unavailable: 'Codex Analytics 暂时不可用，请稍后重试。',
+      };
+
+      function localISO(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function setPreset(days) {
+        const end = new Date();
+        const start = new Date(end);
+        start.setDate(end.getDate() - days + 1);
+        elements.startDate.value = localISO(start);
+        elements.endDate.value = localISO(end);
+        elements.presetButtons.forEach((button) => button.classList.toggle('active', Number(button.dataset.days) === days));
+      }
+
+      function valueOrZero(value) { return Number.isFinite(Number(value)) ? Number(value) : 0; }
+      function tokenTotal(totals = {}) {
+        if (Number.isFinite(Number(totals.text_total_tokens))) return Number(totals.text_total_tokens);
+        return valueOrZero(totals.cached_text_input_tokens) + valueOrZero(totals.uncached_text_input_tokens) + valueOrZero(totals.text_output_tokens);
+      }
+
+      function formatInteger(value) {
+        return value === undefined || value === null ? '—' : integerFormatter.format(Number(value));
+      }
+
+      function formatCompact(value) {
+        return value === undefined || value === null ? '—' : compactFormatter.format(Number(value));
+      }
+
+      function setError(message = '') {
+        elements.errorText.textContent = message;
+        elements.errorBanner.classList.toggle('visible', Boolean(message));
+      }
+
+      function friendlyError(payload, status) {
+        if (status === 401) return '管理密钥无效，或 Management API 会话已失效。';
+        if (status === 403) return '当前连接无权访问 Management API。';
+        if (payload && messages[payload.error]) return messages[payload.error];
+        if (payload && typeof payload.message === 'string' && payload.message.trim()) return payload.message;
+        return `请求失败（HTTP ${status}）`;
+      }
+
+      async function apiFetch(path, params) {
+        const query = params ? `?${new URLSearchParams(params).toString()}` : '';
+        let response;
+        try {
+          response = await fetch(`${apiRoot}${path}${query}`, {
+            method: 'GET',
+            cache: 'no-store',
+            credentials: 'omit',
+            headers: { Accept: 'application/json', Authorization: `Bearer ${state.managementKey}` },
+          });
+        } catch (_) {
+          throw new Error('无法连接 CLIProxyAPI，请检查服务地址和网络状态。');
+        }
+        let payload = null;
+        try { payload = await response.json(); } catch (_) { /* keep sanitized fallback */ }
+        if (!response.ok) {
+          if (response.status === 401) disconnect(false);
+          throw new Error(friendlyError(payload, response.status));
+        }
+        return payload;
+      }
+
+      function accountLabel(account) {
+        const primary = account.label || account.email || account.name || account.id || 'Codex 账号';
+        const secondary = account.email && account.email !== primary ? ` · ${account.email}` : '';
+        return `${primary}${secondary}`;
+      }
+
+      function renderAccounts() {
+        elements.accountSelect.replaceChildren();
+        const usable = state.accounts.filter((account) => !account.disabled && !account.unavailable);
+        if (!state.accounts.length) {
+          const option = new Option('未发现 Codex OAuth 账号', '');
+          elements.accountSelect.add(option);
+        } else {
+          state.accounts.forEach((account) => {
+            const suffix = account.disabled ? '（已禁用）' : account.unavailable ? '（不可用）' : '';
+            const option = new Option(`${accountLabel(account)}${suffix}`, account.auth_index);
+            option.disabled = Boolean(account.disabled || account.unavailable);
+            elements.accountSelect.add(option);
+          });
+          if (usable.length) elements.accountSelect.value = usable[0].auth_index;
+        }
+        elements.accountCount.textContent = `${state.accounts.length} 个账号`;
+      }
+
+      function setConnected(connected) {
+        state.connected = connected;
+        elements.liveState.classList.toggle('connected', connected);
+        elements.liveStateText.textContent = connected ? '安全连接' : '等待连接';
+        elements.keyForm.style.display = connected ? 'none' : 'grid';
+        elements.connectedActions.classList.toggle('visible', connected);
+        elements.accountSelect.disabled = !connected;
+        elements.startDate.disabled = !connected;
+        elements.endDate.disabled = !connected;
+        elements.queryButton.disabled = !connected || state.loading || !elements.accountSelect.value;
+        elements.presetButtons.forEach((button) => { button.disabled = !connected; });
+      }
+
+      function setLoading(loading) {
+        state.loading = loading;
+        elements.connectButton.disabled = loading;
+        elements.queryButton.disabled = loading || !state.connected || !elements.accountSelect.value;
+        elements.connectButton.textContent = loading && !state.connected ? '正在连接…' : '连接并读取账号';
+        elements.queryButton.textContent = loading && state.connected ? '查询中…' : '查询用量';
+        elements.chartPanel.classList.toggle('loading-sheen', loading && state.connected);
+      }
+
+      function disconnect(clearError = true) {
+        state.managementKey = '';
+        state.accounts = [];
+        state.result = null;
+        elements.managementKey.value = '';
+        renderAccounts();
+        setConnected(false);
+        resetDashboard();
+        if (clearError) setError('');
+      }
+
+      async function connect() {
+        const key = elements.managementKey.value.trim();
+        if (!key) {
+          setError('请输入 CLIProxyAPI 管理密钥。');
+          elements.managementKey.focus();
+          return;
+        }
+        state.managementKey = key;
+        setError('');
+        setLoading(true);
+        try {
+          const payload = await apiFetch('/accounts');
+          state.accounts = Array.isArray(payload && payload.accounts) ? payload.accounts : [];
+          renderAccounts();
+          setConnected(true);
+          if (!state.accounts.some((account) => !account.disabled && !account.unavailable)) {
+            setError('没有可用的 Codex OAuth 账号，请先在 CLIProxyAPI 中登录 Codex。');
+            return;
+          }
+          setLoading(false);
+          await runQuery();
+        } catch (error) {
+          state.managementKey = '';
+          setConnected(false);
+          setError(error instanceof Error ? error.message : '连接失败。');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function runQuery() {
+        if (!state.connected || state.loading) return;
+        const authIndex = elements.accountSelect.value;
+        const startDate = elements.startDate.value;
+        const endDate = elements.endDate.value;
+        if (!authIndex) { setError('请选择一个可用的 Codex Workspace 账号。'); return; }
+        if (!startDate || !endDate) { setError('请选择完整的开始和结束日期。'); return; }
+        setError('');
+        setLoading(true);
+        try {
+          state.result = await apiFetch('', { auth_index: authIndex, start_date: startDate, end_date: endDate });
+          renderResult(state.result);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : '查询失败。');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function resetDashboard() {
+        ['metricTokens', 'metricTurns', 'metricCredits', 'metricDays'].forEach((key) => { elements[key].textContent = '—'; });
+        elements.rangeChip.textContent = '暂无区间';
+        elements.cachedValue.textContent = '—';
+        elements.uncachedValue.textContent = '—';
+        elements.outputValue.textContent = '—';
+        elements.cachedBar.style.width = '0';
+        elements.uncachedBar.style.width = '0';
+        elements.outputBar.style.width = '0';
+        elements.peakValue.textContent = '—';
+        elements.peakNote.textContent = '查询后显示 Token 使用量最高的日期';
+        elements.usageChart.replaceChildren();
+        elements.emptyChart.classList.remove('hidden');
+        elements.usageRows.replaceChildren(emptyRow('连接管理 API 后查看每日明细'));
+        elements.tableCaption.textContent = '暂无查询结果';
+        elements.lastUpdated.textContent = '尚未查询';
+      }
+
+      function emptyRow(message) {
+        const row = document.createElement('tr');
+        row.className = 'table-empty';
+        const cell = document.createElement('td');
+        cell.colSpan = 8;
+        cell.textContent = message;
+        row.appendChild(cell);
+        return row;
+      }
+
+      function renderResult(result) {
+        const data = Array.isArray(result && result.data) ? result.data : [];
+        const summary = result && result.summary ? result.summary : {};
+        const summarizedTokens = summary.text_total_tokens === undefined
+          ? data.reduce((total, day) => total + tokenTotal(day.totals || {}), 0)
+          : summary.text_total_tokens;
+        elements.metricTokens.textContent = formatCompact(summarizedTokens);
+        elements.metricTurns.textContent = formatInteger(summary.turns);
+        elements.metricCredits.textContent = summary.credits === undefined ? '—' : decimalFormatter.format(Number(summary.credits));
+        elements.metricDays.textContent = integerFormatter.format(data.length);
+        elements.rangeChip.textContent = `${result.start_date} → ${result.end_date}`;
+        renderComposition(summary);
+        renderChart(data);
+        renderTable(data);
+        elements.tableCaption.textContent = `${accountLabel(result.account || {})} · ${data.length} 条每日记录`;
+        elements.lastUpdated.textContent = `更新于 ${new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date())}`;
+      }
+
+      function renderComposition(summary) {
+        const cached = valueOrZero(summary.cached_text_input_tokens);
+        const uncached = valueOrZero(summary.uncached_text_input_tokens);
+        const output = valueOrZero(summary.text_output_tokens);
+        const parts = cached + uncached + output;
+        elements.cachedValue.textContent = formatCompact(summary.cached_text_input_tokens);
+        elements.uncachedValue.textContent = formatCompact(summary.uncached_text_input_tokens);
+        elements.outputValue.textContent = formatCompact(summary.text_output_tokens);
+        elements.cachedBar.style.width = parts ? `${(cached / parts) * 100}%` : '0';
+        elements.uncachedBar.style.width = parts ? `${(uncached / parts) * 100}%` : '0';
+        elements.outputBar.style.width = parts ? `${(output / parts) * 100}%` : '0';
+      }
+
+      const svgNS = 'http://www.w3.org/2000/svg';
+      function svgElement(tag, attributes = {}, text = '') {
+        const node = document.createElementNS(svgNS, tag);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        if (text) node.textContent = text;
+        return node;
+      }
+
+      function axisLabel(value) {
+        if (value >= 1000000) return `${(value / 1000000).toFixed(value >= 10000000 ? 0 : 1)}M`;
+        if (value >= 1000) return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K`;
+        return String(Math.round(value));
+      }
+
+      function shortDate(value) {
+        const parts = String(value).split('-');
+        return parts.length === 3 ? `${parts[1]}/${parts[2]}` : value;
+      }
+
+      function renderChart(data) {
+        elements.usageChart.replaceChildren();
+        if (!data.length) {
+          elements.emptyChart.classList.remove('hidden');
+          elements.usageRows.replaceChildren(emptyRow('所选范围没有返回每日用量数据'));
+          elements.peakValue.textContent = '—';
+          elements.peakNote.textContent = '所选范围暂无峰值记录';
+          return;
+        }
+        elements.emptyChart.classList.add('hidden');
+        const values = data.map((day) => tokenTotal(day.totals || {}));
+        const peak = Math.max(...values, 0);
+        const maxValue = peak > 0 ? peak * 1.12 : 1;
+        const left = 72, right = 24, top = 24, bottom = 48;
+        const width = 1000 - left - right;
+        const height = 310 - top - bottom;
+
+        const defs = svgElement('defs');
+        const gradient = svgElement('linearGradient', { id: 'areaGradient', x1: '0', y1: '0', x2: '0', y2: '1' });
+        gradient.append(svgElement('stop', { offset: '0%', 'stop-color': '#78f6a8', 'stop-opacity': '.3' }));
+        gradient.append(svgElement('stop', { offset: '100%', 'stop-color': '#78f6a8', 'stop-opacity': '0' }));
+        defs.append(gradient);
+        elements.usageChart.append(defs);
+
+        for (let index = 0; index <= 4; index += 1) {
+          const y = top + (height * index) / 4;
+          const labelValue = maxValue * (1 - index / 4);
+          elements.usageChart.append(svgElement('line', { x1: left, y1: y, x2: left + width, y2: y, class: 'chart-grid' }));
+          elements.usageChart.append(svgElement('text', { x: left - 14, y: y + 4, 'text-anchor': 'end', class: 'chart-label' }, axisLabel(labelValue)));
+        }
+
+        const points = values.map((value, index) => ({
+          x: data.length === 1 ? left + width / 2 : left + (width * index) / (data.length - 1),
+          y: top + height - (value / maxValue) * height,
+        }));
+        const linePath = points.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
+        const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(2)} ${top + height} L ${points[0].x.toFixed(2)} ${top + height} Z`;
+        elements.usageChart.append(svgElement('path', { d: areaPath, class: 'chart-area' }));
+        elements.usageChart.append(svgElement('path', { d: linePath, class: 'chart-line' }));
+
+        const labelIndexes = [...new Set([0, Math.floor((data.length - 1) / 2), data.length - 1])];
+        labelIndexes.forEach((index) => {
+          const point = points[index];
+          elements.usageChart.append(svgElement('text', { x: point.x, y: 294, 'text-anchor': index === 0 ? 'start' : index === data.length - 1 ? 'end' : 'middle', class: 'chart-label' }, shortDate(data[index].date)));
+        });
+        points.forEach((point, index) => {
+          if (data.length <= 20 || values[index] === peak) {
+            const circle = svgElement('circle', { cx: point.x, cy: point.y, r: values[index] === peak ? 5 : 3, class: 'chart-point' });
+            circle.append(svgElement('title', {}, `${data[index].date}: ${integerFormatter.format(values[index])} tokens`));
+            elements.usageChart.append(circle);
+          }
+        });
+
+        const peakIndex = values.indexOf(peak);
+        elements.peakValue.textContent = formatCompact(peak);
+        elements.peakNote.textContent = `${data[peakIndex].date} · ${integerFormatter.format(peak)} Tokens`;
+      }
+
+      function addCell(row, value, className = '') {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        if (className) cell.className = className;
+        row.appendChild(cell);
+      }
+
+      function renderTable(data) {
+        elements.usageRows.replaceChildren();
+        if (!data.length) {
+          elements.usageRows.appendChild(emptyRow('所选范围没有返回每日用量数据'));
+          return;
+        }
+        [...data].reverse().forEach((day) => {
+          const totals = day.totals || {};
+          const row = document.createElement('tr');
+          addCell(row, day.date, 'date-cell');
+          addCell(row, formatInteger(tokenTotal(totals)), 'total-cell');
+          addCell(row, formatInteger(totals.cached_text_input_tokens));
+          addCell(row, formatInteger(totals.uncached_text_input_tokens));
+          addCell(row, formatInteger(totals.text_output_tokens));
+          addCell(row, formatInteger(totals.turns));
+          addCell(row, formatInteger(totals.threads));
+          addCell(row, totals.credits === undefined ? '—' : decimalFormatter.format(Number(totals.credits)));
+          elements.usageRows.appendChild(row);
+        });
+      }
+
+      elements.keyForm.addEventListener('submit', (event) => { event.preventDefault(); void connect(); });
+      elements.disconnectButton.addEventListener('click', () => disconnect());
+      elements.queryButton.addEventListener('click', () => void runQuery());
+      elements.toggleKey.addEventListener('click', () => {
+        const hidden = elements.managementKey.type === 'password';
+        elements.managementKey.type = hidden ? 'text' : 'password';
+        elements.toggleKey.setAttribute('aria-label', hidden ? '隐藏管理密钥' : '显示管理密钥');
+      });
+      elements.presetButtons.forEach((button) => button.addEventListener('click', () => setPreset(Number(button.dataset.days))));
+      [elements.startDate, elements.endDate].forEach((input) => input.addEventListener('change', () => elements.presetButtons.forEach((button) => button.classList.remove('active'))));
+
+      setPreset(30);
+      resetDashboard();
+      setConnected(false);
+    })();
+  </script>
+</body>
+</html>
