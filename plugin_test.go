@@ -66,7 +66,11 @@ func TestManagementRegistrationDeclaresRoutesAndDashboardMenu(t *testing.T) {
 }
 
 func TestDashboardResourceReturnsHardenedHTML(t *testing.T) {
-	request, errMarshal := json.Marshal(managementRequest{Method: http.MethodGet, Path: dashboardPath})
+	request, errMarshal := json.Marshal(managementRequest{
+		Method:  http.MethodGet,
+		Path:    dashboardPath,
+		Headers: http.Header{"Sec-Fetch-Dest": []string{"iframe"}},
+	})
 	if errMarshal != nil {
 		t.Fatal(errMarshal)
 	}
@@ -89,13 +93,45 @@ func TestDashboardResourceReturnsHardenedHTML(t *testing.T) {
 		t.Fatalf("dashboard CSP = %q", dashboard.Headers.Get("Content-Security-Policy"))
 	}
 	body := string(dashboard.Body)
-	for _, expected := range []string{"Codex Workspace 用量", usagePath, "Authorization", "cli-proxy-auth", "readPanelAuth", "cli-proxy-theme"} {
+	for _, expected := range []string{"Codex Workspace 用量", usagePath, "Authorization", "cli-proxy-auth", "readPanelAuth", "cli-proxy-theme", "拒绝直接访问"} {
 		if !strings.Contains(body, expected) {
 			t.Fatalf("dashboard HTML missing %q", expected)
 		}
 	}
-	if strings.Contains(body, "连接并读取账号") {
-		t.Fatal("dashboard must reuse the Management Center session instead of prompting on its primary path")
+	for _, forbidden := range []string{"连接并读取账号", `id="managementKey"`, "验证并继续"} {
+		if strings.Contains(body, forbidden) {
+			t.Fatalf("dashboard must not contain standalone authentication control %q", forbidden)
+		}
+	}
+}
+
+func TestDashboardResourceRejectsTopLevelAndUnclassifiedNavigation(t *testing.T) {
+	for _, headers := range []http.Header{
+		nil,
+		{"Sec-Fetch-Dest": []string{"document"}},
+	} {
+		request, errMarshal := json.Marshal(managementRequest{Method: http.MethodGet, Path: dashboardPath, Headers: headers})
+		if errMarshal != nil {
+			t.Fatal(errMarshal)
+		}
+		response, errHandle := handleMethod(methodManagementHandle, request, &fakeHostClient{})
+		if errHandle != nil {
+			t.Fatal(errHandle)
+		}
+		var env envelope
+		if errUnmarshal := json.Unmarshal(response, &env); errUnmarshal != nil {
+			t.Fatal(errUnmarshal)
+		}
+		var dashboard managementResponse
+		if errUnmarshal := json.Unmarshal(env.Result, &dashboard); errUnmarshal != nil {
+			t.Fatal(errUnmarshal)
+		}
+		if dashboard.StatusCode != http.StatusForbidden {
+			t.Fatalf("dashboard status = %d, want %d", dashboard.StatusCode, http.StatusForbidden)
+		}
+		if strings.Contains(string(dashboard.Body), "Codex Workspace 用量") {
+			t.Fatal("denied response must not include dashboard HTML")
+		}
 	}
 }
 

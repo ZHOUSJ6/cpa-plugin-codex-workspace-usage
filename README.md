@@ -137,17 +137,18 @@ The page provides:
 - Codex account selection and 7/30/90-day range shortcuts.
 - Total Tokens, Turns, Credits, and returned-day summary cards.
 - Daily Token trend, input/output composition, peak-day signal, and daily detail table.
-- Responsive iframe and standalone layouts with no external frontend dependencies.
+- Responsive iframe layout with no external frontend dependencies.
 
-CLIProxyAPI resource pages are intentionally browser-navigable and are not Management API-authenticated. The dashboard therefore contains only static HTML, CSS, and JavaScript. When embedded by the official Management Center, it reads the same-origin `cli-proxy-auth` session already maintained by the panel and uses that session only for same-server `/v0/management/codex-workspace-usage...` requests. This follows the established plugin integration used by other Management Center plugins.
+CLIProxyAPI resource pages are browser-navigable and are not Management API-authenticated by default. This plugin applies a stricter policy: the dashboard resource accepts normal iframe navigations only, and the page performs a second embedded-context check before it initializes. Direct top-level navigation receives HTTP 403. `Sec-Fetch-Dest` is a browser navigation guard rather than an authentication boundary and can be forged by a custom client.
 
-The plugin does not write, copy, or independently persist the management key. If the panel has no saved key, or if the dashboard is opened directly instead of through the Management Center, a compact temporary authentication fallback is shown. The fallback key remains only in the current page's JavaScript memory.
+When embedded by the official Management Center, the page reads the same-origin `cli-proxy-auth` session already maintained by the panel and uses that session only for same-server `/v0/management/codex-workspace-usage...` requests. The plugin does not write, copy, or independently persist the management key, and it provides no standalone login or manual key input. If the panel has no saved session, the page asks the operator to log in again through the Management Center.
 
 ## Security notes
 
 - Install the plugin only in a trusted CLIProxyAPI process; native plugins execute in-process.
 - OAuth material is read only when a query is made and is not included in plugin responses or error messages.
 - The dashboard resource contains no account or usage data by itself. All data requests still pass through Management API authentication.
+- Direct dashboard navigation is rejected, but authenticated Management API routes remain the actual security boundary.
 - Upstream error bodies are never forwarded because they may contain workspace, user, model, or internal identifiers.
 - Outbound requests use CPA's `host.http.do` bridge, so the configured proxy and transport policy are retained. CLIProxyAPI masks sensitive authorization header values in request logs.
 - The plugin does not refresh credentials itself. If the selected Codex credential has expired, let CLIProxyAPI refresh it or re-authenticate the account, then retry.

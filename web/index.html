@@ -940,22 +940,9 @@
 
     <section class="panel access-panel" id="accessPanel" aria-labelledby="accessTitle" hidden>
       <div>
-        <p class="panel-kicker">Protected channel</p>
-        <h2 class="panel-title" id="accessTitle">管理身份验证</h2>
-        <p class="panel-copy">未能读取管理中心保存的会话。请从管理中心菜单打开；如需独立访问，可在这里临时验证。</p>
-      </div>
-      <form class="key-form" id="keyForm" autocomplete="off">
-        <div class="secret-wrap">
-          <input id="managementKey" type="password" placeholder="Management Key" aria-label="CLIProxyAPI 管理密钥" autocomplete="current-password" spellcheck="false">
-          <button class="icon-button" id="toggleKey" type="button" aria-label="显示管理密钥" title="显示或隐藏管理密钥">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
-          </button>
-        </div>
-        <button class="primary-button" id="connectButton" type="submit">验证并继续</button>
-      </form>
-      <div class="connected-actions" id="connectedActions" hidden>
-        <span class="connected-copy">已安全连接 · <strong id="accountCount">0 个账号</strong></span>
-        <button class="ghost-button" id="disconnectButton" type="button">重新验证</button>
+        <p class="panel-kicker">Management Center only</p>
+        <h2 class="panel-title" id="accessTitle">仅限管理中心访问</h2>
+        <p class="panel-copy" id="accessMessage">未能读取管理中心会话。请返回 CLIProxyAPI Management Center 重新登录并刷新此菜单。</p>
       </div>
     </section>
 
@@ -1109,13 +1096,8 @@
       const byId = (id) => document.getElementById(id);
       const elements = {
         accessPanel: byId('accessPanel'),
-        keyForm: byId('keyForm'),
-        managementKey: byId('managementKey'),
-        toggleKey: byId('toggleKey'),
-        connectButton: byId('connectButton'),
-        connectedActions: byId('connectedActions'),
-        disconnectButton: byId('disconnectButton'),
-        accountCount: byId('accountCount'),
+        accessTitle: byId('accessTitle'),
+        accessMessage: byId('accessMessage'),
         liveState: byId('liveState'),
         liveStateText: byId('liveStateText'),
         errorBanner: byId('errorBanner'),
@@ -1292,7 +1274,7 @@
       }
 
       function friendlyError(payload, status) {
-        if (status === 401) return '管理中心会话已失效，请重新登录或临时验证。';
+        if (status === 401) return '管理中心会话已失效，请返回管理中心重新登录后刷新页面。';
         if (status === 403) return '当前管理身份无权访问此接口。';
         if (payload && messages[payload.error]) return messages[payload.error];
         if (payload && typeof payload.message === 'string' && payload.message.trim()) return payload.message;
@@ -1345,16 +1327,13 @@
           });
           if (usable.length) elements.accountSelect.value = usable[0].auth_index;
         }
-        elements.accountCount.textContent = `${state.accounts.length} 个账号`;
       }
 
-      function setConnected(connected, revealAuthentication = !connected) {
+      function setConnected(connected, revealSessionError = !connected) {
         state.connected = connected;
         elements.liveState.classList.toggle('connected', connected);
-        elements.liveStateText.textContent = connected ? '已连接 · ' + state.accounts.length + ' 个账号' : '需要管理身份验证';
-        elements.accessPanel.hidden = connected || !revealAuthentication;
-        elements.keyForm.style.display = 'grid';
-        elements.connectedActions.classList.remove('visible');
+        elements.liveStateText.textContent = connected ? '已连接 · ' + state.accounts.length + ' 个账号' : '管理中心会话不可用';
+        elements.accessPanel.hidden = connected || !revealSessionError;
         elements.accountSelect.disabled = !connected;
         elements.startDate.disabled = !connected;
         elements.endDate.disabled = !connected;
@@ -1364,35 +1343,30 @@
 
       function setLoading(loading) {
         state.loading = loading;
-        elements.connectButton.disabled = loading;
         elements.queryButton.disabled = loading || !state.connected || !elements.accountSelect.value;
-        elements.connectButton.textContent = loading && !state.connected ? '正在验证…' : '验证并继续';
         elements.queryButton.textContent = loading && state.connected ? '查询中…' : '查询用量';
         elements.chartPanel.classList.toggle('loading-sheen', loading && state.connected);
         if (loading) elements.liveStateText.textContent = state.connected ? '正在查询用量' : '正在读取 Codex 账号';
       }
 
-      function disconnect(clearError = true, revealAuthentication = true) {
+      function disconnect(clearError = true, revealSessionError = true) {
         state.apiBase = '';
         state.managementKey = '';
         state.accounts = [];
         state.result = null;
-        elements.managementKey.value = '';
         renderAccounts();
-        setConnected(false, revealAuthentication);
-        resetDashboard('验证管理身份后查看每日明细');
+        setConnected(false, revealSessionError);
+        resetDashboard('请从管理中心重新登录后刷新此菜单');
         if (clearError) setError('');
       }
 
-      async function connect(panelAuth = null) {
-        const key = panelAuth ? panelAuth.managementKey : elements.managementKey.value.trim();
-        if (!key) {
-          setError('请输入 CLIProxyAPI 管理密钥。');
-          elements.accessPanel.hidden = false;
-          elements.managementKey.focus();
+      async function connect(panelAuth) {
+        if (!panelAuth || !panelAuth.managementKey) {
+          disconnect(false, true);
+          setError('未能读取管理中心会话。请重新登录管理中心后刷新此菜单。');
           return;
         }
-        setSession(panelAuth ? panelAuth.apiBase : defaultAPIBase, key);
+        setSession(panelAuth.apiBase, panelAuth.managementKey);
         setError('');
         setLoading(true);
         try {
@@ -1408,8 +1382,8 @@
           await runQuery();
         } catch (error) {
           const authenticationFailed = error && (error.status === 401 || error.status === 403);
-          disconnect(false, authenticationFailed || !panelAuth);
-          if (!authenticationFailed && panelAuth) elements.liveStateText.textContent = '账号读取失败';
+          disconnect(false, authenticationFailed);
+          if (!authenticationFailed) elements.liveStateText.textContent = '账号读取失败';
           setError(error instanceof Error ? error.message : '账号读取失败。');
         } finally {
           setLoading(false);
@@ -1607,24 +1581,24 @@
 
       async function bootstrapFromPanel() {
         applyPanelTheme();
+        if (!isEmbedded()) {
+          elements.accessTitle.textContent = '拒绝直接访问';
+          elements.accessMessage.textContent = '此插件只能从 CLIProxyAPI Management Center 的菜单中打开。';
+          setConnected(false, true);
+          resetDashboard('请从管理中心菜单打开此插件');
+          return;
+        }
         const panelAuth = readPanelAuth();
         if (!panelAuth) {
           setConnected(false, true);
-          resetDashboard('验证管理身份后查看每日明细');
+          resetDashboard('请从管理中心重新登录后刷新此菜单');
           return;
         }
         setConnected(false, false);
         await connect(panelAuth);
       }
 
-      elements.keyForm.addEventListener('submit', (event) => { event.preventDefault(); void connect(); });
-      elements.disconnectButton.addEventListener('click', () => disconnect());
       elements.queryButton.addEventListener('click', () => void runQuery());
-      elements.toggleKey.addEventListener('click', () => {
-        const hidden = elements.managementKey.type === 'password';
-        elements.managementKey.type = hidden ? 'text' : 'password';
-        elements.toggleKey.setAttribute('aria-label', hidden ? '隐藏管理密钥' : '显示管理密钥');
-      });
       elements.presetButtons.forEach((button) => button.addEventListener('click', () => {
         setPreset(Number(button.dataset.days));
         void runQuery();

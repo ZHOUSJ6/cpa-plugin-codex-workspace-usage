@@ -21,7 +21,7 @@ const (
 
 // pluginVersion is a variable so tagged release builds can inject the exact
 // version with -ldflags without changing source between platforms.
-var pluginVersion = "0.3.0"
+var pluginVersion = "0.3.1"
 
 var currentConfig atomic.Value
 
@@ -256,6 +256,9 @@ func handleManagement(raw []byte, host hostClient) ([]byte, error) {
 	service := usageService{host: host, cfg: loadedConfig()}
 	switch strings.TrimRight(req.Path, "/") {
 	case dashboardPath:
+		if !dashboardRequestAllowed(req.Headers) {
+			return okEnvelope(dashboardAccessDeniedResponse())
+		}
 		return okEnvelope(dashboardResponse())
 	case accountsPath:
 		return okEnvelope(service.handleAccounts())
