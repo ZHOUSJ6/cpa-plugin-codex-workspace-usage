@@ -11,9 +11,18 @@ The plugin exposes authenticated CPA Management API routes. It reads an existing
 
 ## Install
 
-After the plugin is accepted into the official [CLIProxyAPI Plugin Store](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store), open the Plugin Store in the CLIProxyAPI Management Center, search for **Codex Workspace Usage**, and install the matching package. CLIProxyAPI can load an installed plugin online without stopping the service.
+Add the unified personal store [`ZHOUSJ6/CLIProxyAPI-Plugins-Store`](https://github.com/ZHOUSJ6/CLIProxyAPI-Plugins-Store) to the CPA configuration:
 
-Until then, download the archive matching your operating system and CPU architecture from [GitHub Releases](https://github.com/ZHOUSJ6/cpa-plugin-codex-workspace-usage/releases). Verify it against `checksums.txt`, extract the library at the ZIP root, and place it in either location:
+```yaml
+plugins:
+  enabled: true
+  store-sources:
+    - https://raw.githubusercontent.com/ZHOUSJ6/CLIProxyAPI-Plugins-Store/main/registry.json
+```
+
+Restart CPA or refresh the Plugin Store in the Management Center, search for **Codex Workspace Usage**, and install it. CPA selects the package for the current operating system and CPU architecture, verifies it against `checksums.txt`, and can load the installed plugin without stopping the service.
+
+For manual installation, download the archive matching your operating system and CPU architecture from [GitHub Releases](https://github.com/ZHOUSJ6/cpa-plugin-codex-workspace-usage/releases). Verify it against `checksums.txt`, extract the library at the ZIP root, and place it in either location:
 
 ```text
 plugins/<GOOS>/<GOARCH>/codex-workspace-usage.<ext>
